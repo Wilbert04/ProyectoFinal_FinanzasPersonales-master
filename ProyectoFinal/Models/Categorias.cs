@@ -9,6 +9,7 @@ namespace ProyectoFinal.Models
     public class Categorias
     {
         [Key]
+        [Required(ErrorMessage = "El campo Id no puede estar vacío.")]
         public int CategoriaId { get; set; }
         public string Descripcion { get; set; }
         public int Tipo { get; set; }
