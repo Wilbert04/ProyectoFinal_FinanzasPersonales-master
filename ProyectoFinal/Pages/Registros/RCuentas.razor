@@ -1,0 +1,145 @@
+﻿@page "/Cuenta"
+@page "/Cuenta/{CuentaId:int}"
+
+
+@inject IToastService Toast
+
+
+<EditForm Model="cuenta" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Cuentas</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label> CuentaId</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="cuenta.CuentaId" class="form-control col-4" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label>PresupestoId</label>
+                    <InputNumber @bind-Value="cuenta.PresupuestoId" class="form-control" />
+                    <ValidationMessage For=@(() => cuenta.PresupuestoId) />
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="cuenta.Nombre" class="form-control" />
+                    <ValidationMessage For=@(() => cuenta.Nombre) />
+                </div>
+
+                <div class="form-group">
+                    <label for="cars">Tipo:</label>
+
+                    <select name="cars" id="cars">
+                        <option value="volvo">Cuenta Por Pagar</option>
+                        <option value="saab">Cuenta Por Cobrar</option>
+
+                    </select>
+                </div>
+                
+
+            </form>
+
+            <div class="card-footer">
+                <div class="form-group text-center" display:inline-block>
+                    <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</EditForm>
+
+@code {
+
+    private Cuentas cuenta = new Cuentas();
+    [Parameter]
+    public int CuentaId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+
+    }
+
+    private void Nuevo()
+    {
+        cuenta = new Cuentas();
+    }
+
+    private void Buscar()
+    {
+
+        if (cuenta.CuentaId > 0)
+        {
+            var encontrado = CuentasBLL.Buscar(cuenta.CuentaId);
+
+            if (encontrado != null)
+            {
+                this.cuenta = encontrado;
+
+            }
+            else
+            {
+                Toast.ShowInfo("No encontrado..");
+                Nuevo();
+            }
+        }
+
+    }
+
+    private void Guardar()
+    {
+        bool guardo;
+        guardo = CuentasBLL.Guardar(cuenta);
+
+        if (guardo)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Guardado correctamente");
+        }
+        else
+        {
+            Toast.ShowError("No fue posible guardar");
+
+        }
+    }
+
+
+
+    private void Eliminar()
+    {
+        bool elimino;
+        elimino = CuentasBLL.Eliminar(cuenta.CuentaId);
+
+        if (elimino)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+        {
+            Toast.ShowSuccess("No se pudo eliminar");
+        }
+
+    }
+
+}
