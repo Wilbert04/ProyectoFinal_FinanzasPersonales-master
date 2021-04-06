@@ -1,0 +1,204 @@
+﻿@page "/Presupuesto"
+@page "/Presupuesto/{PresupuestoId:int}"
+
+
+@inject IToastService Toast
+
+<EditForm Model="presupuesto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Presupuestos</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label> PresupuestoId</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="presupuesto.PresupuestoId" class="form-control col-4" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripcion</label>
+                    <InputText @bind-Value="presupuesto.Descripcion" class="form-control" />
+                    <ValidationMessage For=@(() => presupuesto.Descripcion) />
+                </div>
+
+                <div class="form-group">
+                    <label>Monto</label>
+                    <InputNumber @bind-Value="presupuesto.Monto" class="form-control col-5" />
+                    <ValidationMessage For="@(() => presupuesto.Monto)" />
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <InputDate @bind-Value="presupuesto.Fecha" class="form-control col-5" />
+                    <ValidationMessage For="@(() => presupuesto.Fecha)" />
+                </div>
+
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-info input-group-text" @onclick="Agregar">Agregar</button>
+                </div>
+
+                <div class="table-responsive text-nowrap">
+                    <label>Facturas Pendientes</label>
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Id</th>
+                                <th>Descripcion</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @foreach (var item in presupuesto.Detalle)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.CategoriaId</td>
+                                    <td>@item.Monto</td>
+                                    <td>@item.Fecha</td>
+
+                                    <td><button type="button" class="btn btn-outline-danger" @onclick="(() => EliminarPresupuestoDetalle(item))">Remover</button></td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+
+            </form>
+
+            <div class="card-footer">
+                <div class="form-group text-center" display:inline-block>
+                    <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</EditForm>
+
+@code {
+
+    private Presupuestos presupuesto = new Presupuestos();
+    [Parameter]
+    public int PresupuestoId { get; set; }
+
+    public DateTime fecha { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+
+    }
+
+    private void Nuevo()
+    {
+        presupuesto = new Presupuestos();
+    }
+
+    private void Buscar()
+    {
+
+        if (presupuesto.PresupuestoId > 0)
+        {
+            var encontrado = PresupuestosBLL.Buscar(presupuesto.PresupuestoId);
+
+            if (encontrado != null)
+            {
+                this.presupuesto = encontrado;
+
+            }
+            else
+            {
+                Toast.ShowInfo("No encontrado..");
+                Nuevo();
+            }
+        }
+
+    }
+
+
+    private void Guardar()
+    {
+        bool guardo;
+        guardo = PresupuestosBLL.Guardar(presupuesto);
+
+        if (guardo)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Guardado correctamente");
+        }
+        else
+        {
+            Toast.ShowError("No fue posible guardar");
+
+        }
+    }
+
+    private void Eliminar()
+    {
+        bool elimino;
+        elimino = PresupuestosBLL.Eliminar(presupuesto.PresupuestoId);
+
+        if (elimino)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+        {
+            Toast.ShowSuccess("No se pudo eliminar");
+        }
+
+    }
+
+    private void Agregar()
+    {
+
+        this.presupuesto.Detalle.Add(new PresupuestoDetalle
+        {
+            Id = 0,
+            CategoriaId = 0,
+            Monto= 0,
+            Fecha = fecha,
+
+
+        });
+        fecha = DateTime.Now;
+
+    }
+
+    private void EliminarPresupuestoDetalle(PresupuestoDetalle detalle)
+    {
+        try
+        {
+            presupuesto.Detalle.Remove(detalle);
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+}

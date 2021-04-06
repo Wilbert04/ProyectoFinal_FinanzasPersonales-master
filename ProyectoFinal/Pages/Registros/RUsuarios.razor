@@ -1,0 +1,149 @@
+﻿@page "/Usuario"
+@page "/Usuario/{UsuarioId:int}"
+
+
+@inject IToastService Toast
+
+
+<EditForm Model="usuarios" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Usuarios</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label> UsuarioId</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="usuarios.UsuarioId" class="form-control col-4" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="usuarios.Nombre" class="form-control" />
+                    <ValidationMessage For=@(() => usuarios.Nombre) />
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <InputText @bind-Value="usuarios.Apellido" class="form-control" />
+                    <ValidationMessage For=@(() => usuarios.Apellido) />
+                </div>
+                <div class="form-group">
+                    <label>Cedula</label>
+                    <InputText @bind-Value="usuarios.Cedula" class="form-control" />
+                    <ValidationMessage For=@(() => usuarios.Cedula) />
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <InputDate @bind-Value="usuarios.Fecha" class="form-control" />
+                    <ValidationMessage For="(() => usuarios.Fecha)" />
+                </div>
+
+            </form>
+
+            <div class="card-footer">
+                <div class="form-group text-center" display:inline-block>
+                    <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</EditForm>
+
+@code {
+
+    private Usuarios usuarios = new Usuarios();
+    [Parameter]
+    public int UsuarioId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+
+    }
+
+    private void Nuevo()
+    {
+        usuarios = new Usuarios();
+    }
+
+    private void Buscar()
+    {
+
+        if (usuarios.UsuarioId > 0)
+        {
+            var encontrado = UsuarioBLL.Buscar(usuarios.UsuarioId);
+
+            if (encontrado != null)
+            {
+                this.usuarios = encontrado;
+
+            }
+            else
+            {
+                Toast.ShowInfo("No encontrado..");
+                Nuevo();
+            }
+        }
+
+    }
+
+    private void Guardar()
+    {
+        bool guardo;
+        guardo = UsuarioBLL.Guardar(usuarios);
+
+        if (guardo)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Guardado correctamente");
+        }
+        else
+        {
+            Toast.ShowError("No fue posible guardar");
+
+        }
+    }
+
+
+
+    private void Eliminar()
+    {
+        bool elimino;
+        elimino = UsuarioBLL.Eliminar(usuarios.UsuarioId);
+
+        if (elimino)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+        {
+            Toast.ShowSuccess("No se pudo eliminar");
+        }
+
+    }
+
+
+
+
+
+
+
+}
