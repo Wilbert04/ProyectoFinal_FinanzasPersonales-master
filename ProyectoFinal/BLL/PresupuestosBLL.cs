@@ -4,6 +4,7 @@ using ProyectoFinal.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ProyectoFinal.BLL
@@ -127,6 +128,27 @@ namespace ProyectoFinal.BLL
             }
 
             return encontrado;
+        }
+
+        public static List<Presupuestos> GetList(Expression<Func<Presupuestos, bool>> expression)
+        {
+            List<Presupuestos> lista = new List<Presupuestos>();
+            Contexto contexto = new Contexto();
+
+            try
+            {
+                lista = contexto.Presupuestos.Where(expression).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                contexto.Dispose();
+            }
+            return lista;
         }
     }
 

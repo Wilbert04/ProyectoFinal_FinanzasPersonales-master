@@ -1,0 +1,139 @@
+﻿@page "/ConsultaUsuarios"
+
+@inject IToastService Toast
+
+<div class="card">
+
+    <div class="card-header">
+        <h3>Consulta de Usuarios</h3>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group col-4">
+                <label>Filtro: </label>
+                <select @bind="filtro" class="form-control  col-4" placeholder="Seleccione un Filtro">
+                    <option value="0">Todo</option>
+                    <option value="1">Id</option>
+                    <option value="2">Nombre</option>
+                    <option value="3">Cedula</option>
+                    <option value="4">Fecha</option>
+                </select>
+            </div>
+
+            <div class="form-group   col-6">
+                <label>Criterio</label>
+                <div class="input-group">
+                    <input type="text" @bind=" criterio" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" @onclick="Consultar">Consultar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>UsuarioId</th>
+                    <th>Nombre</th>
+                    <th>Cedula</th>
+                    <th>Fecha</th>
+                    
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in lista)
+                {
+                    <tr>
+                        <td>@item.UsuarioId</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Cedula</td>
+                        <td>@item.Fecha</td>
+                        
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+    
+</div>
+
+@code {
+
+    public int filtro { get; set; }
+    public string criterio { get; set; }
+    public string cedula { get; set; }
+    public List<Usuarios> lista = new List<Usuarios>();
+
+
+    private void Consultar()
+    {
+        try
+        {
+            switch (filtro)
+            {
+                case 0: 
+                    this.lista = UsuarioBLL.GetList(p => true);
+                    break;
+                case 1: 
+                    int ID = GetId();
+                    this.lista = UsuarioBLL.GetList(p => p.UsuarioId == ID);
+                   
+                    break;
+                case 2: 
+                    this.lista = UsuarioBLL.GetList(p => p.Nombre == criterio);
+                    
+                    break;
+                case 3: 
+                    this.lista = UsuarioBLL.GetList(p => p.Cedula == cedula);
+                    break;
+                case 4: 
+                    DateTime fecha = GetFecha(); 
+                    this.lista = UsuarioBLL.GetList(p => p.Fecha == fecha);
+                    break;    
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    private int GetId()
+    {
+        int resultado = 0;
+
+        try
+        {
+            resultado = Convert.ToInt32(criterio);
+            return resultado;
+        }
+        catch (Exception)
+        {
+
+            Toast.ShowError("El Id debe ser numerico..");
+        }
+
+        return resultado;
+    }
+
+    private DateTime GetFecha()
+    {
+        DateTime fecha= DateTime.Now;
+        try
+        {
+            fecha = Convert.ToDateTime(criterio);
+            return fecha;
+        }
+        catch (Exception)
+        {
+
+            Toast.ShowError("La Fecha debe ser numerico..");
+        }
+
+        return fecha;
+    }
+}

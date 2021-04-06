@@ -1,0 +1,157 @@
+﻿@page "/ConsultaPresupuestos"
+
+@inject IToastService Toast
+
+<div class="card">
+
+    <div class="card-header">
+        <h3>Consulta de Presupuestos</h3>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group col-4">
+                <label>Filtro: </label>
+                <select @bind="filtro" class="form-control  col-4" placeholder="Seleccione un Filtro">
+                    <option value="0">Todo</option>
+                    <option value="1">Id</option>
+                    <option value="2">Nombre</option>
+                    <option value="3">Monto</option>
+                    <option value="4">Fecha</option>
+                </select>
+            </div>
+
+            <div class="form-group   col-6">
+                <label>Criterio</label>
+                <div class="input-group">
+                    <input type="text" @bind=" criterio" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" @onclick="Consultar">Consultar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>PresupuestoId</th>
+                    <th>Descripcion</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in lista)
+                {
+                    <tr>
+                        <td>@item.PresupuestoId</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.Monto</td>
+                        <td>@item.Fecha</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+@code {
+
+    public int filtro { get; set; }
+    public string criterio { get; set; }
+    public List<Presupuestos> lista = new List<Presupuestos>();
+
+
+    private void Consultar()
+    {
+        try
+        {
+            switch (filtro)
+            {
+                case 0:
+                    this.lista = PresupuestosBLL.GetList(p => true);
+                    break;
+                case 1:
+                    int ID = GetId();
+                    this.lista = PresupuestosBLL.GetList(p => p.PresupuestoId == ID);
+
+                    break;
+                case 2:
+                    this.lista = PresupuestosBLL.GetList(p => p.Descripcion == criterio);
+
+                    break;
+                case 3:
+                    decimal monto = GetMonto();
+                    this.lista = PresupuestosBLL.GetList(p => p.Monto == monto);
+                    break;
+                case 4:
+                    DateTime fecha = GetFecha();
+                    this.lista = PresupuestosBLL.GetList(p => p.Fecha == fecha);
+                    break;
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    private int GetId()
+    {
+        int resultado = 0;
+
+        try
+        {
+            resultado = Convert.ToInt32(criterio);
+            return resultado;
+        }
+        catch (Exception)
+        {
+
+            Toast.ShowError("El Id debe ser numerico..");
+        }
+
+        return resultado;
+    }
+
+    private decimal GetMonto()
+    {
+        decimal monto = 0;
+
+        try
+        {
+            monto = Convert.ToDecimal(criterio);
+            return monto;
+        }
+        catch (Exception)
+        {
+
+            Toast.ShowError("El monto debe ser numerico..");
+        }
+
+        return monto;
+    }
+
+    private DateTime GetFecha()
+    {
+        DateTime fecha= DateTime.Now;
+        try
+        {
+            fecha = Convert.ToDateTime(criterio);
+            return fecha;
+        }
+        catch (Exception)
+        {
+
+            Toast.ShowError("La Fecha debe ser numerico..");
+        }
+
+        return fecha;
+    }
+}
