@@ -35,6 +35,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label><b>Usuario</b></label>
+                    <select class="form-control" @bind="presupuesto.UsuarioId">
+                        <option disabled="disabled" selected="selected">Elija una opción</option>
+                        @foreach (var auxiliar in LlenarComboUsario())
+                        {
+                            <option value="@auxiliar.UsuarioId">@auxiliar.Nombre</option>
+                        }
+                    </select>
+                    <ValidationMessage For="@(() => presupuesto.UsuarioId)" />
+                </div>
+
+                <div class="form-group">
                     <label>Monto</label>
                     <InputNumber @bind-Value="presupuesto.Monto" class="form-control col-5" />
                     <ValidationMessage For="@(() => presupuesto.Monto)" />
@@ -178,7 +190,7 @@
         {
             Id = 0,
             CategoriaId = 0,
-            Monto= 0,
+            Monto = 0,
             Fecha = fecha,
 
 
@@ -199,6 +211,22 @@
 
             throw;
         }
+    }
+
+    public List<Usuarios> LlenarComboUsario()
+    {
+        List<Usuarios> listaUsuarios = new List<Usuarios>();
+
+        try
+        {
+            listaUsuarios = UsuarioBLL.GetList(c => true);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+        return listaUsuarios;
     }
 
 }
